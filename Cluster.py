@@ -1,11 +1,18 @@
+# Keenan Albee and Antonio Teran
 # Uses Kermack-McKendrick model, with spatial spread component between discrete steps
 import numpy as np
 from matplotlib import pyplot as plt 
 import time
 
+# LaTeX formatting
+from matplotlib import rc
+rc('font',**{'family':'DejaVu Sans','serif':['Computer Modern'], 'size': 18})
+rc('text', usetex=True)
+plt.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}'] # include a package
+
 class Cluster(object):
 
-	def __init__(self, sim_iters=0, susceptible="0", infected="0", recovered="0", lat="45", lon="37", density="0"):
+	def __init__(self, sim_iters=0, susceptible="0", infected="0", recovered="0", lat="45", lon="37", density="0", name="empty"):
 		self.N = recovered + susceptible + infected
 
 		self.recovered = float(recovered)/self.N
@@ -21,15 +28,14 @@ class Cluster(object):
 		self.history = np.zeros((sim_iters+1, 4))
 		self.history[0,:] = [self.time, self.susceptible, self.infected, self.recovered]  # [time, s, i, r]
 
-		self.R0 = 1.7 #2.2  # R0 (approx)
+		self.R0 = 1.7#2.2  # R0 (approx)
 		self.gamma = 1.0/12.0 # recovery rate (per day): inverse of infectious duration
 		self.beta = self.R0*self.gamma # transmissibility x rate of contact (per day)
 
 		self.sim_iters = sim_iters
 		self.iter = 0
 
-	def plot_cluster():
-		pass
+		self.name = name
 
 	# Update the spread model internally.
 	# iter - iteration
@@ -55,7 +61,7 @@ class Cluster(object):
 		self.susceptible = s
 		self.infected = i
 		self.recovered = r
-		print s, i, r
+		print(s+i+r)
 		# time.sleep(0.5)
 
 		self.iter += 1
@@ -67,7 +73,12 @@ class Cluster(object):
 		plt.plot(self.history[:,0], self.N*self.history[:,1])  # s
 		plt.plot(self.history[:,0], self.N*self.history[:,2])  # i
 		plt.plot(self.history[:,0], self.N*self.history[:,3])  # r
+		
 		plt.legend(('susceptible', 'infected', 'recovered'))
+		ax = plt.gca()
+		ax.set_xlabel('Time since Mar-24 (days)')	
+		ax.set_ylabel('Predicted number of people in category (people)')
+		plt.title('Case Evolution, $R_0=1.7$')
 		plt.show()
 
 	def increment_external():
